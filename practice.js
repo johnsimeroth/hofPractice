@@ -133,7 +133,20 @@ var allUserMessages = function(tweets) {
 
 */
 var applyCoupon = function (groceries, coupon) {
+  _.map(groceries, function(groceryItem) {
+    // var zeros = '00';
+    // var price = groceryItem.price.slice(1);
+    // var decimals = price.length - 1 - price.indexOf('.');
+    // price += zeros.substring(0, 2 - decimals);
+    // var priceInt = parseInt(price.replace('.', ''));
+    // groceryItem.salePrice = Math.round((priceInt * (1 - coupon))).toString().split('');
+    // groceryItem.salePrice.splice(-2, 0, '.');
+    // groceryItem.salePrice = '$' + groceryItem.salePrice.join('');
 
+    var price = groceryItem.price.slice(1);
+    groceryItem.salePrice = '$' + ((Math.round(100 * (1 - coupon) * price)) / 100).toString();
+  });
+  return groceries;
 };
 
 /*
@@ -144,13 +157,40 @@ var applyCoupon = function (groceries, coupon) {
 
 // return the total price of all products.
 var sumTotal = function (products) {
-
+  var prices = _.map(products, function(product) {
+    return product.price.slice(1) * 100;
+  });
+  var total = _.reduce(prices, function(sum, price) {
+    return sum + price;
+  });
+  return total / 100;
 };
 
 // return an object consisting of dessert types and how many of each.
 // exampleOutput: { dessertType: 3, dessertType2: 1 }
-var dessertCategories = function (desserts) {
 
+// inputs: array of dessert objects, each with type properties
+  // outputs: object - keys = desert types, values = count
+  // constraints: the usual
+  // edge cases: N/A
+
+  // declare result object variable
+  // loop through the array of objects
+    // for each object, look at the type property. if type
+    // property exists in the return object, increment value.
+    // if not, add it with value 1.
+  // return result
+
+var dessertCategories = function (desserts) {
+  var dessertCounter = function(countObject, dessert) {
+    if (countObject[dessert.type] === undefined) {
+      countObject[dessert.type] = 1;
+    } else {
+      countObject[dessert.type] += 1;
+    }
+    return countObject;
+  };
+  return _.reduce(desserts, dessertCounter, {});
 };
 
 // return an object with the proper count of all user messages
@@ -165,19 +205,37 @@ var dessertCategories = function (desserts) {
   }
 */
 var countMessagesPerUser = function(tweets) {
-
+  var msgCounter = function(tweetCounter, tweet) {
+    if (tweetCounter[tweet.user] === undefined) {
+      tweetCounter[tweet.user] = 1;
+    } else { tweetCounter[tweet.user]++; }
+    return tweetCounter;
+  };
+  return _.reduce(tweets, msgCounter, {});
 };
 
 // given an array of movie data objects,return an array containing
 // movies that came out between 1990 and 2000.
 // TIP: use an array as your accumulator - don't push to an external array!
 var ninetiesKid = function (movies) {
-
+  var ninetiesMovies = function(movieList, movie) {
+    if (movie.releaseYear >= 1990 && movie.releaseYear <= 2000) {
+      movieList.push(movie.title);
+    }
+    return movieList;
+  };
+  return _.reduce(movies, ninetiesMovies, []);
 };
 
 // return an boolean stating if there exists a movie with a shorter
 // runtime than your time limit.
 // timeLimit is an integer representing a number of minutes.
 var movieNight = function (movies, timeLimit) {
-
+  var countShortMovies = function(movieCount, movie) {
+    if (movie.runtime <= timeLimit) {
+      movieCount++;
+    }
+    return movieCount;
+  };
+  return _.reduce(movies, countShortMovies, 0) > 0;
 };
